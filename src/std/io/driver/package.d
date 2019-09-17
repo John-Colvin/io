@@ -41,9 +41,6 @@ version (Windows)
  */
 interface Driver
 {
-    // FILE and SOCKET handles cannot be manipulated in @safe code, so most of
-    // the Driver's API is @safe.
-shared @safe @nogc:
     /**
        Opaque file handle
 
@@ -60,6 +57,20 @@ shared @safe @nogc:
         alias tchar = wchar; /// UTF-8 path on Posix, UTF-16 path on Windows
     else
         static assert(0, "unimplemented");
+
+    /**
+       Opaque socket handle
+
+       Interpretation left to driver, typically `int` file descriptor
+       on Posix systems and `SOCKET` on Windows.
+    */
+    alias SOCKET = void*;
+    /// value used for invalid/closed sockets
+    enum INVALID_SOCKET = cast(void*)-1;
+
+    // FILE and SOCKET handles cannot be manipulated in @safe code, so most of
+    // the Driver's API is @safe.
+shared @safe @nogc:
 
     /**
        Create/open file at `path` in `mode`.
@@ -88,15 +99,6 @@ shared @safe @nogc:
     /// seek file to offset
     ulong seek(scope FILE f, long offset, int whence);
 
-    /**
-       Opaque socket handle
-
-       Interpretation left to driver, typically `int` file descriptor
-       on Posix systems and `SOCKET` on Windows.
-    */
-    alias SOCKET = void*;
-    /// value used for invalid/closed sockets
-    enum INVALID_SOCKET = cast(void*)-1;
     /// create socket
     SOCKET createSocket(AddrFamily family, SocketType type, Protocol protocol);
     /**
